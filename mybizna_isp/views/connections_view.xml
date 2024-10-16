@@ -1,12 +1,11 @@
 <odoo>
   <data>
-    <!-- explicit list view definition -->
-
+    <!-- List view for mybizna.isp.connections -->
     <record model="ir.ui.view" id="mybizna_isp.connections_list">
       <field name="name">Connections List</field>
       <field name="model">mybizna.isp.connections</field>
       <field name="arch" type="xml">
-        <tree default_order='id desc'>
+        <tree default_order="id desc">
           <field name="partner_id"/>
           <field name="package_id"/>
           <field name="username"/>
@@ -20,32 +19,30 @@
       </field>
     </record>
 
+    <!-- Form view for mybizna.isp.connections -->
     <record model="ir.ui.view" id="mybizna_isp.connections_form">
       <field name="name">Connections Form</field>
       <field name="model">mybizna.isp.connections</field>
       <field name="arch" type="xml">
         <form string="Connections Form">
           <sheet>
-
             <group col="4">
               <field name="partner_id"/>
               <field name="package_id"/>
-              <field name="status" />
+              <field name="status"/>
               <field name="username"/>
               <field name="password"/>
               <field name="expiry_date"/>
               <field name="billing_date"/>
-              <field name="invoice_id" attrs="{'readonly':1}"/>
-              <field name="is_setup" attrs="{'readonly':1}"/>
+              <field name="invoice_id" attrs="{'readonly': [('is_setup', '=', True)]}"/>
+              <field name="is_setup" readonly="1"/>
               <field name="is_paid"/>
             </group>
 
             <notebook>
               <page string="Setup Items">
-                <group attrs="{'invisible':[('partner_id','=',False)]}">
-                  <button name="generate_invoice" string="Generate Invoice" type="object" class="oe_highlight" attrs="{'invisible':[('is_setup','=',True)]}"/>
-                </group>
-                <group>
+                <group attrs="{'invisible': [('partner_id', '=', False)]}">
+                  <button name="generate_invoice" string="Generate Invoice" type="object" class="oe_highlight" attrs="{'invisible': [('is_setup', '=', True)]}"/>
                   <button name="update_radius" string="Update Radius" type="object" class="oe_highlight"/>
                 </group>
                 <field name="connections_setupitems_ids">
@@ -58,7 +55,7 @@
               <page string="Invoices">
                 <field name="connections_invoices_ids">
                   <tree string="Invoices" create="false">
-                    <field name="invoice_id" />
+                    <field name="invoice_id"/>
                   </tree>
                 </field>
               </page>
@@ -68,77 +65,47 @@
       </field>
     </record>
 
+    <!-- Server actions for processing connections and billing -->
     <record id="mybizna_isp.action_process_new_connections" model="ir.actions.server">
-
-      <field name="name">Process New Connection</field>
-
+      <field name="name">Process New Connections</field>
       <field name="type">ir.actions.server</field>
-
       <field name="model_id" ref="model_mybizna_isp_connections"/>
-
       <field name="state">code</field>
-
-      <field name="code">env.get('mybizna.isp.connections').processNewConnections()</field>
-
+      <field name="code">env['mybizna.isp.connections'].processNewConnections()</field>
     </record>
 
     <record id="mybizna_isp.action_process_all_connections" model="ir.actions.server">
-
-      <field name="name">Process All Connection</field>
-
+      <field name="name">Process All Connections</field>
       <field name="type">ir.actions.server</field>
-
       <field name="model_id" ref="model_mybizna_isp_connections"/>
-
       <field name="state">code</field>
-
-      <field name="code">env.get('mybizna.isp.connections').processAllConnections()</field>
-
+      <field name="code">env['mybizna.isp.connections'].processAllConnections()</field>
     </record>
-
 
     <record id="mybizna_isp.action_process_billing" model="ir.actions.server">
-
       <field name="name">Process Billing</field>
-
       <field name="type">ir.actions.server</field>
-
       <field name="model_id" ref="model_mybizna_isp_connections"/>
-
       <field name="state">code</field>
-
-      <field name="code">env.get('mybizna.isp.connections').prepareBilling()</field>
-
+      <field name="code">env['mybizna.isp.connections'].prepareBilling()</field>
     </record>
-
 
     <record id="mybizna_isp.action_process_expiry" model="ir.actions.server">
-
       <field name="name">Process Expiry</field>
-
       <field name="type">ir.actions.server</field>
-
       <field name="model_id" ref="model_mybizna_isp_connections"/>
-
       <field name="state">code</field>
-
-      <field name="code">env.get('mybizna.isp.connections').processExpiry()</field>
-
+      <field name="code">env['mybizna.isp.connections'].processExpiry()</field>
     </record>
 
-
-
-    <!-- actions opening views on models -->
-
+    <!-- Action for opening the connections list view -->
     <record model="ir.actions.act_window" id="mybizna_isp.connections_action_window">
       <field name="name">Connections</field>
       <field name="res_model">mybizna.isp.connections</field>
       <field name="view_mode">tree,form</field>
     </record>
 
-
-    <!-- server action to the one above -->
-
+    <!-- Action server for the connections window -->
     <record model="ir.actions.server" id="mybizna_isp.connections_action_server">
       <field name="name">Connections</field>
       <field name="model_id" ref="model_mybizna_isp_connections"/>
@@ -147,21 +114,16 @@
         action = {
           "type": "ir.actions.act_window",
           "view_mode": "tree,form",
-          "res_model": model._name,
+          "res_model": "mybizna.isp.connections",
         }
       </field>
     </record>
 
-
-    <!-- Top menu item -->
-
+    <!-- Menu items for managing connections -->
     <menuitem name="Connections" id="mybizna_isp.connections" parent="mybizna_isp.menu_root" action="mybizna_isp.connections_action_window" sequence="1"/>
-
-    <menuitem name="Process All(-new) Connections" id="mybizna_isp.process_all_connections" parent="mybizna_isp.menu_action" action="mybizna_isp.action_process_new_connections" sequence="5"/>
-    <menuitem name="Process New Connections" id="mybizna_isp.process_new_connections" parent="mybizna_isp.menu_action" action="mybizna_isp.action_process_all_connections" sequence="5"/>
-    <menuitem name="Process Billing Cycle" id="mybizna_isp.process_billing" parent="mybizna_isp.menu_action" action="mybizna_isp.action_process_billing" sequence="5"/>
-    <menuitem name="Process Expired" id="mybizna_isp.process_expiry" parent="mybizna_isp.menu_action" action="mybizna_isp.action_process_expiry" sequence="5"/>
-
-
+    <menuitem name="Process All Connections" id="mybizna_isp.process_all_connections" parent="mybizna_isp.connections" action="mybizna_isp.action_process_all_connections" sequence="5"/>
+    <menuitem name="Process New Connections" id="mybizna_isp.process_new_connections" parent="mybizna_isp.connections" action="mybizna_isp.action_process_new_connections" sequence="6"/>
+    <menuitem name="Process Billing Cycle" id="mybizna_isp.process_billing" parent="mybizna_isp.connections" action="mybizna_isp.action_process_billing" sequence="7"/>
+    <menuitem name="Process Expired" id="mybizna_isp.process_expiry" parent="mybizna_isp.connections" action="mybizna_isp.action_process_expiry" sequence="8"/>
   </data>
 </odoo>
